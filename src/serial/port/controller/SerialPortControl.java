@@ -11,6 +11,7 @@ public class SerialPortControl implements Runnable {
 	static Enumeration portList;
 
 	InputStream inputStream;
+	OutputStream outputStream;
 	SerialPort serialPort;
 	Thread readThread;
 
@@ -45,6 +46,19 @@ public class SerialPortControl implements Runnable {
 			System.out.println(e);
 		}
 
+		try {
+			outputStream = serialPort.getOutputStream();
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+
+		try {
+			outputStream.write(0x31);
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
 
 		try {
 			serialPort.addEventListener(new SerialPortEventListener() {
@@ -58,6 +72,10 @@ public class SerialPortControl implements Runnable {
 								int numBytes = inputStream.read(readBuffer);
 							}
 							System.out.print(new String(readBuffer));
+
+							// Todo: Handle response
+
+
 						}
 						catch (IOException e) {
 							System.out.println(e);
