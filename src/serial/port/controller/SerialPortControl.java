@@ -7,13 +7,16 @@ import java.util.*;
 
 
 public class SerialPortControl implements Runnable {
-	final String PORT = "/dev/tty.usbmodem1411";
+	final String PORT = "/dev/tty.usbmodem1421";
 
 
 	static SerialPort serialPort;
 	Thread readThread;
-	int[] byteData = {0x31, 0x32, 0x33};
+	//int[] byteData = {0x31, 0x32, 0x33};
+	int[] byteData = {0x31, 0x32};
 	int currentDataType = 0;
+
+	double amp = 0;
 
 	public static void main(String[] args) {
 		SerialPortControl portController = new SerialPortControl();
@@ -70,25 +73,33 @@ public class SerialPortControl implements Runnable {
 							switch (type) {
 								case 'C': // current
 
+									String hex = formattedData.substring(0, formattedData.length() - 1);
+									int convert = Integer.parseInt(hex);
+									double currentCalculation = convert * 0.00322;
+									amp = currentCalculation;
 
-									tempvar = Double.parseDouble(formattedData.substring(0, formattedData.length() - 1));
-									tempvar = currentref * (tempvar / currentampresolution) / (currentampgain * shuntresistor); //v = i*r, i=v/r
-
-									System.out.println(tempvar + " A");
+									//System.out.println(currentCalculation + " A");
 
 
 									break;
 								case 'V': // voltage
 
-									tempvar = Double.parseDouble(formattedData.substring(0, formattedData.length() - 1));
-									if (tempvar >= 61440) {
-										tempvar -= 65535;
-									}
+									/*String hexVolt = formattedData.substring(0, formattedData.length() - 1);
+									int convertVolt = Integer.parseInt(hexVolt, 16);
+									double voltCalculation = convertVolt * 0.00322;*/
 
+
+									String hexVolt = formattedData.substring(0, formattedData.length() - 1);
+									tempvar = Integer.parseInt(hexVolt);
+									if(tempvar >= 61440){tempvar -= 65535;}
 									tempvar *= 2;
 
+									//now scale to external resistors and reference
 									tempvar = vref * (tempvar / adcresolution) * ((Vin_R1 + Vin_R2) / Vin_R2);
-									System.out.println(tempvar + " V");
+
+									//System.out.println(tempvar + " V");
+
+									System.out.println("W: " + (int)(amp * tempvar));
 
 									break;
 								case 'T': // temperature
@@ -154,7 +165,7 @@ public class SerialPortControl implements Runnable {
 
 				sendBytes();
 
-				Thread.sleep(3000);
+				Thread.sleep(500);
 			}
 		} catch (Exception e) {System.out.println(e);}
 	}
