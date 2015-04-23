@@ -2,21 +2,15 @@ package serial.port.controller;
 
 import jssc.*;
 
-import java.io.*;
-import java.util.*;
-
 
 public class SerialPortControl implements Runnable {
-	final String PORT = "/dev/tty.usbmodem1421";
+	final String PORT = "/dev/tty.usbmodem1411";
 
 
 	static SerialPort serialPort;
 	Thread readThread;
-	//int[] byteData = {0x31, 0x32, 0x33};
-	int[] byteData = {0x31, 0x32};
-	int currentDataType = 0;
-
-	double amp = 0;
+	int threadTimer = 0;
+	static MeasuringBoard measuringBoard;
 
 	public static void main(String[] args) {
 		SerialPortControl portController = new SerialPortControl();
@@ -24,6 +18,7 @@ public class SerialPortControl implements Runnable {
 
 	public SerialPortControl() {
 		try {
+			measuringBoard = new MeasuringBoard();
 			serialPort = new SerialPort(PORT);
 			serialPort.openPort();
 			serialPort.setParams(9600, 8, 1, 0);
@@ -32,100 +27,14 @@ public class SerialPortControl implements Runnable {
 				@Override
 				public void serialEvent(SerialPortEvent event) {
 
-					if (event.isRXCHAR()) {
-						try {
-							/*final byte buffer[] = serialPort.readBytes(event.getEventValue());
-							final String readed = new String(buffer);
+					try {
+						final byte buffer[] = serialPort.readBytes(event.getEventValue());
 
+						if(buffer.length == 840)
+							measuringBoard.processData(buffer);
 
-							System.out.println("length: " + buffer.length);
-
-							for(int i = 0; i < buffer.length; i++) {
-								System.out.println(Integer.toHexString(buffer[i]));
-							}
-
-
-							System.out.println(readed + "(" + event.getEventValue() + ")");
-							System.out.println("----------------------------------");*/
-
-							final byte buffer[] = serialPort.readBytes(event.getEventValue());
-							final String data = new String(buffer);
-
-							String formattedData = data.substring(0, data.length() - 2);
-							char type = formattedData.charAt(formattedData.length() - 1);
-							double tempvar;
-
-
-							// fake constants
-
-							double currentref = 3.3;
-							double currentampresolution = 4096; //12-bit
-							double currentampgain = 50;
-							double shuntresistor = 0.002;
-							double Vin_R1 = 99200;
-							double Vin_R2 = 9900;
-							double vref = 3.3 / 1.6;
-							double adcresolution = 4096;
-							double therm_r = 6490;
-							double therm_rnom = 10000;
-							double therm_beta = 3428;
-
-							switch (type) {
-								case 'C': // current
-
-									String hex = formattedData.substring(0, formattedData.length() - 1);
-									int convert = Integer.parseInt(hex);
-									double currentCalculation = convert * 0.00322;
-									amp = currentCalculation;
-
-									//System.out.println(currentCalculation + " A");
-
-
-									break;
-								case 'V': // voltage
-
-									/*String hexVolt = formattedData.substring(0, formattedData.length() - 1);
-									int convertVolt = Integer.parseInt(hexVolt, 16);
-									double voltCalculation = convertVolt * 0.00322;*/
-
-
-									String hexVolt = formattedData.substring(0, formattedData.length() - 1);
-									tempvar = Integer.parseInt(hexVolt);
-									if(tempvar >= 61440){tempvar -= 65535;}
-									tempvar *= 2;
-
-									//now scale to external resistors and reference
-									tempvar = vref * (tempvar / adcresolution) * ((Vin_R1 + Vin_R2) / Vin_R2);
-
-									//System.out.println(tempvar + " V");
-
-									System.out.println("W: " + (int)(amp * tempvar));
-
-									break;
-								case 'T': // temperature
-
-									tempvar = Double.parseDouble(formattedData.substring(0, formattedData.length() - 1));
-									if (tempvar >= 61440) {
-										tempvar -= 65535;
-									}
-
-									tempvar *= 2;
-
-									tempvar = tempvar * vref / adcresolution; //voltage on pin
-
-									double Rtherm = tempvar * therm_r / (currentref - tempvar); //current resistance of thermistor
-									double Ttherm = 1 / ((1 / 298.15) - Math.log(therm_rnom / Rtherm) / therm_beta);
-									Ttherm -= 273.15;
-
-									System.out.println(tempvar + " deg C");
-
-									break;
-							}
-
-
-						} catch (Exception ex) {
-							System.out.println(ex);
-						}
+					} catch (Exception ex) {
+						System.out.println(ex);
 					}
 
 				}
@@ -138,8 +47,6 @@ public class SerialPortControl implements Runnable {
 			//serialPort.writeByte((byte)0x38); // start
 			//serialPort.writeByte((byte)0x39); // end
 
-
-
 		} catch(Exception e) {
 			System.out.println(e);
 		}
@@ -151,8 +58,12 @@ public class SerialPortControl implements Runnable {
 	private void sendBytes() {
 		try {
 			if(serialPort.isOpened()) {
-				serialPort.writeByte((byte) byteData[currentDataType]);
-				currentDataType = (((currentDataType + 1) < byteData.length) ? (currentDataType + 1) : 0);
+				if(threadTimer == 0) {
+					serialPort.writeByte((byte)0x38);
+				} else if(threadTimer == 20) {
+					serialPort.writeByte((byte) 0x39);
+				}
+
 			}
 		} catch(Exception e) {
 			System.out.println(e);
@@ -165,6 +76,7 @@ public class SerialPortControl implements Runnable {
 
 				sendBytes();
 
+				threadTimer++;
 				Thread.sleep(500);
 			}
 		} catch (Exception e) {System.out.println(e);}
