@@ -26,26 +26,17 @@ public class SerialPortControl implements Runnable {
 			serialPort.addEventListener(new SerialPortEventListener() {
 				@Override
 				public void serialEvent(SerialPortEvent event) {
+				try {
+					final byte buffer[] = serialPort.readBytes(event.getEventValue());
 
-					try {
-						final byte buffer[] = serialPort.readBytes(event.getEventValue());
+					if(buffer.length == 840)
+						measuringBoard.processData(buffer);
 
-						if(buffer.length == 840)
-							measuringBoard.processData(buffer);
-
-					} catch (Exception ex) {
-						System.out.println(ex);
-					}
-
+				} catch (Exception ex) {
+					System.out.println(ex);
+				}
 				}
 			});
-
-			//serialPort.writeByte((byte)0x31); // current
-			//serialPort.writeByte((byte)0x32); // voltage
-			//serialPort.writeByte((byte)0x33); // temperature
-
-			//serialPort.writeByte((byte)0x38); // start
-			//serialPort.writeByte((byte)0x39); // end
 
 		} catch(Exception e) {
 			System.out.println(e);
@@ -60,7 +51,7 @@ public class SerialPortControl implements Runnable {
 			if(serialPort.isOpened()) {
 				if(threadTimer == 0) {
 					serialPort.writeByte((byte)0x38);
-				} else if(threadTimer == 20) {
+				} else if(threadTimer == 50) {
 					serialPort.writeByte((byte) 0x39);
 				}
 

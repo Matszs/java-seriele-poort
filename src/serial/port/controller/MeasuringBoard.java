@@ -6,6 +6,19 @@ package serial.port.controller;
  * @author Mats Otten
  * @project java-seriele-poort
  * @since 22-04-15
+ *
+ *
+ *
+ *
+
+//serialPort.writeByte((byte)0x31); // current
+//serialPort.writeByte((byte)0x32); // voltage
+//serialPort.writeByte((byte)0x33); // temperature
+
+//serialPort.writeByte((byte)0x38); // start
+//serialPort.writeByte((byte)0x39); // end
+ *
+ *
  */
 public class MeasuringBoard {
 
