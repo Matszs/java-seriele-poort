@@ -1,8 +1,14 @@
-package serial.port.controller;
+package wattGraphs.SerialPortControl;
 
 import jssc.*;
 
-
+/**
+ * Place program description here
+ *
+ * @author Mats Otten
+ * @project java-seriele-poort
+ * @since 23-04-15
+ */
 public class SerialPortControl implements Runnable {
 	final String PORT = "/dev/tty.usbmodem1411";
 
@@ -11,10 +17,6 @@ public class SerialPortControl implements Runnable {
 	Thread readThread;
 	int threadTimer = 0;
 	static MeasuringBoard measuringBoard;
-
-	public static void main(String[] args) {
-		SerialPortControl portController = new SerialPortControl();
-	}
 
 	public SerialPortControl() {
 		try {
@@ -26,15 +28,15 @@ public class SerialPortControl implements Runnable {
 			serialPort.addEventListener(new SerialPortEventListener() {
 				@Override
 				public void serialEvent(SerialPortEvent event) {
-				try {
-					final byte buffer[] = serialPort.readBytes(event.getEventValue());
+					try {
+						final byte buffer[] = serialPort.readBytes(event.getEventValue());
 
-					if(buffer.length == 840)
-						measuringBoard.processData(buffer);
+						if(buffer.length == 840)
+							measuringBoard.processData(buffer);
 
-				} catch (Exception ex) {
-					System.out.println(ex);
-				}
+					} catch (Exception ex) {
+						System.out.println(ex);
+					}
 				}
 			});
 
@@ -73,3 +75,4 @@ public class SerialPortControl implements Runnable {
 		} catch (Exception e) {System.out.println(e);}
 	}
 }
+

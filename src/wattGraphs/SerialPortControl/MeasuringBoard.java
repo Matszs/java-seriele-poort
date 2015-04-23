@@ -1,4 +1,4 @@
-package serial.port.controller;
+package wattGraphs.SerialPortControl;
 
 /**
  * Place program description here

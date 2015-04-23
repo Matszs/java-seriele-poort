@@ -1,6 +1,7 @@
-package serial.port.controller;
+package wattGraphs.SerialPortControl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Place program description here
