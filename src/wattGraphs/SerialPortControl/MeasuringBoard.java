@@ -61,7 +61,13 @@ public class MeasuringBoard {
 			for (int i = 0; i < 50; i++) { // first 50 samples, each 8 16-bit words=50*8*2=800 bytes (400 16-bit words)
 				int bix = 2 * (i * 8 + channelIndex); // buffer byte index
 				int adc = bytesToWord(buffer, bix);
-				channel.addMeasurement(channel.calculateAmperage(adc));
+				double amperage = channel.calculateAmperage(adc);
+				//if(channel.getValue() != 12)
+					channel.addMeasurement(amperage);
+				//else
+				//	channel.addMeasurement(0.0);
+
+				//System.out.println(channel.getName() + " - " + amperage);
 			}
 
 			double watt = channel.getAverageWattage();
@@ -81,5 +87,6 @@ public class MeasuringBoard {
 	 */
 	private int bytesToWord(byte[] buffer, int bix) {
 		return (((buffer[bix]) << 8) | buffer[bix + 1] & 0xFF) & 0xffff; // bigendian ABCD= AB CD
+		//return (((buffer[bix + 1]) << 8) | buffer[bix] & 0xFF) & 0xffff;
 	}
 }

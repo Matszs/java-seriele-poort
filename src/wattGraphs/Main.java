@@ -48,7 +48,7 @@ public class Main extends Application {
 	private static Text averageText = new Text("-");
 
 	public static void main(String[] args) {
-		portController = new SerialPortControl("COM6");
+		portController = new SerialPortControl("/dev/tty.usbmodem1411");
 		portController.addDataReadListener(new DataReadListener() {
 			@Override
 			public void onReceivingWattage(final double watt) {

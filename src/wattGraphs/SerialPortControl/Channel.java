@@ -23,15 +23,19 @@ public class Channel {
 		this.multiplier = multiplier;
 	}
 
-	String getName() {
+	public String getName() {
 		return name;
 	}
 
-	double calculateAmperage(int adc) {
+	public double getValue() {
+		return value;
+	}
+
+	public double calculateAmperage(int adc) {
 		return (adc * multiplier);
 	}
 
-	double getAverageWattage() {
+	public double getAverageWattage() {
 		double totalWatt = 0;
 		for(double amperage : measurements)
 			totalWatt += (amperage * value);
