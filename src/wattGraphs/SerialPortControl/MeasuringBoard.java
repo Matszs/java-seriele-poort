@@ -58,20 +58,19 @@ public class MeasuringBoard {
 		for (int channelIndex = 3; channelIndex <= 7; channelIndex++) {
 			Channel channel = channels[channelIndex];
 
-			for (int i = 0; i < 50; i++) { // first 50 samples, each 8 16-bit words=50*8*2=800 bytes (400 16-bit words)
+			double totalAmperage = 0;
+
+			for (int i = 0; i < 1; i++) { // first 50 samples, each 8 16-bit words=50*8*2=800 bytes (400 16-bit words)
 				int bix = 2 * (i * 8 + channelIndex); // buffer byte index
 				int adc = bytesToWord(buffer, bix);
 				double amperage = channel.calculateAmperage(adc);
-				//if(channel.getValue() != 12)
-					channel.addMeasurement(amperage);
-				//else
-				//	channel.addMeasurement(0.0);
-
-				//System.out.println(channel.getName() + " - " + amperage);
+				totalAmperage += amperage;
 			}
 
-			double watt = channel.getAverageWattage();
+			double average = totalAmperage / 1;
+			channel.addMeasurement(average);
 
+			double watt = channel.getAverageWattage();
 			totalWattage += watt;
 		}
 
