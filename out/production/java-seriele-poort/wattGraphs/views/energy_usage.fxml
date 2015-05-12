@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.web.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="605.0" minWidth="728.0" prefHeight="605.0" prefWidth="728.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="wattGraphs.Controller">
+   <children>
+      <AnchorPane layoutX="14.0" layoutY="14.0" prefHeight="33.0" prefWidth="705.0" style="-fx-background-color: #b10000;">
+         <children>
+            <Text fill="WHITE" layoutX="8.0" layoutY="21.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Energiegebruik meetapplicatie (SEF10)" />
+         </children>
+      </AnchorPane>
+      <TabPane layoutX="14.0" layoutY="55.0" prefHeight="537.0" prefWidth="705.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Meten">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TextField fx:id="timeMinutes" layoutX="99.0" layoutY="14.0" prefHeight="26.0" prefWidth="35.0" text="10" />
+                        <Label layoutX="14.0" layoutY="19.0" text="Tijdsduur:" />
+                        <Label layoutX="139.0" layoutY="19.0" text="min" />
+                        <TextField fx:id="timeSeconds" layoutX="174.0" layoutY="14.0" prefHeight="26.0" prefWidth="34.0" text="0" />
+                        <Label layoutX="215.0" layoutY="19.0" text="sec" />
+                        <Button id="start_capturing" fx:id="startButton" layoutX="580.0" layoutY="14.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="112.0" text="Start" />
+                        <Separator layoutX="10.0" layoutY="47.0" prefHeight="15.0" prefWidth="682.0" />
+                        <AnchorPane layoutX="9.0" layoutY="62.0" prefHeight="392.0" prefWidth="680.0">
+                           <children>
+                              <LineChart id="EnergyLineChart" fx:id="EnergyLineChart" layoutX="-11.0" layoutY="17.0" legendVisible="false" title="Energiegebruik" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <xAxis>
+                                  <CategoryAxis />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis forceZeroInRange="false" label="Watt" minorTickCount="10" side="LEFT" upperBound="80.0" />
+                                </yAxis>
+                              </LineChart>
+                           </children>
+                        </AnchorPane>
+                        <Label layoutX="27.0" layoutY="454.0" text="Meetwaarde:" />
+                        <TextField disable="true" layoutX="127.0" layoutY="449.0" prefHeight="26.0" prefWidth="74.0" text="0" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Instellingen">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="48.0" prefHeight="16.0" prefWidth="72.0" text="Poort:" />
+                        <TextField layoutX="134.0" layoutY="43.0" />
+                        <Label layoutX="14.0" layoutY="89.0" text="Database gegevens" textFill="#ee0f0f" />
+                        <Label layoutX="14.0" layoutY="14.0" text="Applicatie gegevens" textFill="#ee0f0f" />
+                        <Label layoutX="14.0" layoutY="123.0" text="Host:" />
+                        <TextField layoutX="134.0" layoutY="118.0" />
+                        <Label layoutX="14.0" layoutY="157.0" text="Gebruikersnaam:" />
+                        <TextField layoutX="134.0" layoutY="152.0" />
+                        <Label layoutX="15.0" layoutY="194.0" text="Wachtwoord:" />
+                        <TextField layoutX="134.0" layoutY="187.0" />
+                        <Label layoutX="16.0" layoutY="229.0" text="Database:" />
+                        <TextField layoutX="134.0" layoutY="224.0" />
+                        <Button layoutX="134.0" layoutY="400.0" mnemonicParsing="false" text="Opslaan" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</Pane>

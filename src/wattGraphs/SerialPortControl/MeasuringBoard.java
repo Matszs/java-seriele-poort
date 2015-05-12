@@ -31,9 +31,9 @@ public class MeasuringBoard {
 		null,
 		null,
 		new Channel("ATX12", 12, multiplier2),
-		new Channel("3.3V", 3.3, multiplier2),
+		new Channel("3.3V", 3.3, multiplier1),
 		new Channel("5V", 5, multiplier2),
-		new Channel("5Vsb", 5, multiplier2),
+		new Channel("5Vsb", 5, multiplier1),
 		new Channel("12V", 12, multiplier2),
 	};
 
