@@ -47,11 +47,9 @@ public class Main extends Application {
 	static int counter = 0;
 	static double totalUsage = 0; //Double.MAX_VALUE is the maximum a double (somewhere around 1.7*10^308).
 
-	private static Text usageText = new Text("-");
-	private static Text averageText = new Text("-");
-
 	private static int timeCounter = 0;
 	private static Timeline timer;
+	private static TextField lastUsageField = null;
 
 
 
@@ -74,8 +72,10 @@ public class Main extends Application {
 							series.getData().remove(0, series.getData().size() - MAX_DATA_POINTS);
 						}
 
-						usageText.setText("Laatste meting: " + String.format("%.2f", watt) + " watt          ");
-						averageText.setText("Gemiddelde gebruik:  " + String.format("%.2f", (totalUsage / (counter + 1))) + " watt");
+
+						if(lastUsageField != null)
+							lastUsageField.setText(String.format("%.2f", watt) + " watt");
+						//averageText.setText("Gemiddelde gebruik:  " + String.format("%.2f", (totalUsage / (counter + 1))) + " watt");
 
 						counter++;
 					}
@@ -94,7 +94,7 @@ public class Main extends Application {
 		final FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/energy_usage.fxml"));
 		Parent root = (Parent) fxmlLoader.load();
 
-
+		lastUsageField = (TextField)fxmlLoader.getNamespace().get("lastMeasuring");
 
 		Button captureButton = (Button)fxmlLoader.getNamespace().get("startButton");
 		captureButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -139,7 +139,7 @@ public class Main extends Application {
 					timer.setCycleCount(timeCounter);
 					timer.play();
 
-					
+
 					portController.start();
 					System.out.println("START");
 

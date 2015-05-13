@@ -34,7 +34,7 @@
                            <children>
                               <LineChart id="EnergyLineChart" fx:id="EnergyLineChart" layoutX="-11.0" layoutY="17.0" legendVisible="false" title="Energiegebruik" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <xAxis>
-                                  <CategoryAxis />
+                                  <NumberAxis forceZeroInRange="false" />
                                 </xAxis>
                                 <yAxis>
                                   <NumberAxis forceZeroInRange="false" label="Watt" minorTickCount="10" side="LEFT" upperBound="80.0" />
@@ -43,7 +43,7 @@
                            </children>
                         </AnchorPane>
                         <Label layoutX="27.0" layoutY="454.0" text="Meetwaarde:" />
-                        <TextField disable="true" layoutX="127.0" layoutY="449.0" prefHeight="26.0" prefWidth="74.0" text="0" />
+                        <TextField id="lastMeasuring" fx:id="lastMeasuring" disable="true" layoutX="127.0" layoutY="449.0" prefHeight="26.0" prefWidth="74.0" text="0" />
                      </children>
                   </AnchorPane>
             </content>

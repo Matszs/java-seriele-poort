@@ -47,11 +47,12 @@ public class MeasuringBoard {
 	public void processData(byte[] buffer) {
 
 
-		/*
+
 		// Debugging data
-		for (int i = 0; i < 840; i++) {
+		/*for (int i = 0; i < 840; i++) {
 			System.out.print(String.format("%02X", (0xFF & buffer[i])) + " ");
 		}*/
+
 
 		double totalWattage = 0;
 
