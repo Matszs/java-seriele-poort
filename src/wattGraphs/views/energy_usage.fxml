@@ -53,18 +53,18 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Label layoutX="14.0" layoutY="48.0" prefHeight="16.0" prefWidth="72.0" text="Poort:" />
-                        <TextField layoutX="134.0" layoutY="43.0" />
+                        <TextField fx:id="settingPort" layoutX="134.0" layoutY="43.0" />
                         <Label layoutX="14.0" layoutY="89.0" text="Database gegevens" textFill="#ee0f0f" />
                         <Label layoutX="14.0" layoutY="14.0" text="Applicatie gegevens" textFill="#ee0f0f" />
                         <Label layoutX="14.0" layoutY="123.0" text="Host:" />
-                        <TextField layoutX="134.0" layoutY="118.0" />
+                        <TextField fx:id="settingDbHost" layoutX="134.0" layoutY="118.0" />
                         <Label layoutX="14.0" layoutY="157.0" text="Gebruikersnaam:" />
-                        <TextField layoutX="134.0" layoutY="152.0" />
+                        <TextField fx:id="settingDbUser" layoutX="134.0" layoutY="152.0" />
                         <Label layoutX="15.0" layoutY="194.0" text="Wachtwoord:" />
-                        <TextField layoutX="134.0" layoutY="187.0" />
+                        <TextField fx:id="settingDbPassword" layoutX="134.0" layoutY="187.0" />
                         <Label layoutX="16.0" layoutY="229.0" text="Database:" />
-                        <TextField layoutX="134.0" layoutY="224.0" />
-                        <Button layoutX="134.0" layoutY="400.0" mnemonicParsing="false" text="Opslaan" />
+                        <TextField fx:id="settingDbDatabase" layoutX="134.0" layoutY="224.0" />
+                        <Button fx:id="settingSave" layoutX="134.0" layoutY="400.0" mnemonicParsing="false" text="Opslaan" />
                      </children>
                   </AnchorPane>
             </content>

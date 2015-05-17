@@ -7,56 +7,41 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
 import javafx.util.Duration;
-import wattGraphs.SerialPortControl.DataReadListener;
-import wattGraphs.SerialPortControl.SerialPortControl;
+import wattGraphs.SerialPortControl.*;
+import wattGraphs.SerialPortControl.ErrorListener;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Main extends Application {
 
 	final static int MAX_DATA_POINTS = 20;
 
-	private static SerialPortControl portController;
+	private static SerialPortControl portController = null;
+
+	private static FXMLLoader fxmlLoader;
 	private static XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 	static int counter = 0;
 	static double totalUsage = 0; //Double.MAX_VALUE is the maximum a double (somewhere around 1.7*10^308).
 
 	private static int timeCounter = 0;
-	private static Timeline timer;
+	private static Timeline timer = null;
 	private static TextField lastUsageField = null;
 
-
-
-
-
 	public static void main(String[] args) {
-		portController = new SerialPortControl("/dev/tty.usbmodem1411");
+		launch(args);
+	}
+
+	public static void startMeasuring() {
+		portController = new SerialPortControl(Configuration.getString("port"));
 		portController.addDataReadListener(new DataReadListener() {
 			@Override
 			public void onReceivingWattage(final double watt) {
@@ -72,7 +57,6 @@ public class Main extends Application {
 							series.getData().remove(0, series.getData().size() - MAX_DATA_POINTS);
 						}
 
-
 						if(lastUsageField != null)
 							lastUsageField.setText(String.format("%.2f", watt) + " watt");
 						//averageText.setText("Gemiddelde gebruik:  " + String.format("%.2f", (totalUsage / (counter + 1))) + " watt");
@@ -82,16 +66,35 @@ public class Main extends Application {
 				});
 			}
 		});
-		launch(args);
+		portController.addOnErrorListener(new ErrorListener() {
+			@Override
+			public void onError(String message, boolean serialReaderStopped) {
+
+				TextField timeMinutes = (TextField)fxmlLoader.getNamespace().get("timeMinutes");
+				TextField timeSeconds = (TextField)fxmlLoader.getNamespace().get("timeSeconds");
+
+				timeMinutes.setDisable(false);
+				timeSeconds.setDisable(false);
+
+				timeMinutes.setText("0");
+				timeSeconds.setText("0");
+
+				timeCounter = 0;
+				if(timer != null)
+					timer.stop();
+
+				if(portController.isStarted())
+					portController.stop();
+				System.out.println("STOPPED BY ERROR: " + message);
+
+			}
+		});
+		portController.init();
 	}
 
     @Override
     public void start(Stage stage) throws Exception{
-
-
-		//Parent root = FXMLLoader.load(getClass().getResource("views/energy_usage.fxml"));
-
-		final FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("views/energy_usage.fxml"));
+		fxmlLoader = new FXMLLoader(getClass().getResource("views/energy_usage.fxml"));
 		Parent root = (Parent) fxmlLoader.load();
 
 		lastUsageField = (TextField)fxmlLoader.getNamespace().get("lastMeasuring");
@@ -100,9 +103,10 @@ public class Main extends Application {
 		captureButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
+				if(portController == null)
+					startMeasuring();
+
 				if (!portController.isStarted()) {
-
-
 					final TextField timeMinutes = (TextField)fxmlLoader.getNamespace().get("timeMinutes");
 					final TextField timeSeconds = (TextField)fxmlLoader.getNamespace().get("timeSeconds");
 
@@ -162,15 +166,32 @@ public class Main extends Application {
 			}
 		});
 
-
 		LineChart energyLineChart = (LineChart)fxmlLoader.getNamespace().get("EnergyLineChart");
-
 		energyLineChart.getData().add(series);
 
+		final TextField port = (TextField)fxmlLoader.getNamespace().get("settingPort");
+		final TextField dbHost = (TextField)fxmlLoader.getNamespace().get("settingDbHost");
+		final TextField dbUsername = (TextField)fxmlLoader.getNamespace().get("settingDbUser");
+		final TextField dbPassword = (TextField)fxmlLoader.getNamespace().get("settingDbPassword");
+		final TextField dbDatabase = (TextField)fxmlLoader.getNamespace().get("settingDbDatabase");
 
+		Button saveSettingsButton = (Button)fxmlLoader.getNamespace().get("settingSave");
+		saveSettingsButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent actionEvent) {
+				Configuration.write("port", port.getText());
+				Configuration.write("db_host", dbHost.getText());
+				Configuration.write("db_username", dbUsername.getText());
+				Configuration.write("db_password", dbPassword.getText());
+				Configuration.write("db_database", dbDatabase.getText());
+			}
+		});
 
-
-
+		port.setText(Configuration.getString("port"));
+		dbHost.setText(Configuration.getString("db_host"));
+		dbUsername.setText(Configuration.getString("db_username"));
+		dbPassword.setText(Configuration.getString("db_password"));
+		dbDatabase.setText(Configuration.getString("db_database"));
 
 
 
@@ -179,71 +200,5 @@ public class Main extends Application {
 		stage.setScene(scene);
 
 		stage.show();
-
-
-
-
-
-
-
-
-		/*stage.setTitle("Energiegebruik");
-
-		GridPane root = new GridPane();
-		root.setPadding(new Insets(25));
-
-
-		//Text on top
-		Text scenetitle = new Text("Seflab :: Energiegebruik (SEF10)");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-		scenetitle.setFill(Color.LIGHTGRAY);
-		root.add(scenetitle, 0, 0, 2, 1);
-
-		//Start/stop button
-		final Button btn = new Button();
-		btn.setText("Start meting");
-		btn.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				if (!portController.isStarted()) {
-					portController.start();
-					System.out.println("START");
-					btn.setText("Stop");
-
-				} else {
-					portController.stop();
-					System.out.println("STOP");
-					btn.setText("Start");
-				}
-			}
-		});
-		root.add(btn, 2, 0);
-
-		//Line chart
-		final NumberAxis xAxis = new NumberAxis();
-		final NumberAxis yAxis = new NumberAxis(0, MAX_WATT, 10);
-		yAxis.setLabel("Watt");
-		yAxis.setForceZeroInRange(false);
-
-		xAxis.setTickLabelsVisible(false);
-		xAxis.setForceZeroInRange(false);
-
-		final LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);
-
-		series.setName("Wattage");
-		root.add(lineChart, 0, 2);
-		root.setColumnSpan(lineChart, 2);
-		lineChart.getData().add(series);
-
-		//Text for last measure point
-		root.add(usageText, 0, 3);
-
-		//Text for average wattage usage
-		root.add(averageText, 1, 3);
-
-		//Set as content and display
-		stage.setScene(new Scene(root, 800, 800));
-		stage.show();*/
     }
 }

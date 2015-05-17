@@ -23,14 +23,9 @@ public class SerialPortControl implements Runnable {
 
 	public SerialPortControl(String port) {
 		PORT = port;
-		init();
 	}
 
-	public SerialPortControl() {
-		init();
-	}
-
-	private void init() {
+	public void init() {
 		try {
 			measuringBoard = new MeasuringBoard();
 			serialPort = new SerialPort(PORT);
@@ -45,7 +40,7 @@ public class SerialPortControl implements Runnable {
 
 						if (buffer.length == 840) {
 							measuringBoard.processData(buffer);
-							fireMyEvent(measuringBoard.getWattage());
+							fireDataReadListener(measuringBoard.getWattage());
 						}
 
 					} catch (SerialPortException ex) {
@@ -56,7 +51,7 @@ public class SerialPortControl implements Runnable {
 
 		} catch(Exception e) {
 			isStarted = false;
-			System.out.println(e);
+			fireError(e.getMessage(), true);
 		}
 
 		readThread = new Thread(this);
@@ -73,8 +68,10 @@ public class SerialPortControl implements Runnable {
 
 	public void start() {
 		try {
-			isStarted = true;
-			serialPort.writeByte((byte) 0x38); // send bytes to measuringboard to start the read process
+			if(serialIsOpen()) {
+				isStarted = true;
+				serialPort.writeByte((byte) 0x38); // send bytes to measuringboard to start the read process
+			}
 		} catch(Exception e) {
 			isStarted = false;
 			System.out.println("ERROR 2: " + e.getMessage());
@@ -83,7 +80,8 @@ public class SerialPortControl implements Runnable {
 
 	public void stop() {
 		try {
-			serialPort.writeByte((byte) 0x39); // send bytes to measuringboard to start the read process
+			if(serialIsOpen() && isStarted())
+				serialPort.writeByte((byte) 0x39); // send bytes to measuringboard to start the read process
 		} catch(Exception e) {
 			System.out.println("ERROR 3: " + e.getMessage());
 		} finally {
@@ -102,16 +100,27 @@ public class SerialPortControl implements Runnable {
 	public void addDataReadListener(DataReadListener listener) {
 		listenerList.add(DataReadListener.class, listener);
 	}
+	public void addOnErrorListener(ErrorListener listener) {
+		listenerList.add(ErrorListener.class, listener);
+	}
 
 	public void removeDataReadListener(DataReadListener listener) {
 		listenerList.remove(DataReadListener.class, listener);
 	}
 
-	void fireMyEvent(double watt) {
+	void fireDataReadListener(double watt) {
 		Object[] listeners = listenerList.getListenerList();
 		for (int i = 0; i < listeners.length; i = i+2) {
 			if (listeners[i] == DataReadListener.class) {
 				((DataReadListener) listeners[i+1]).onReceivingWattage(watt);
+			}
+		}
+	}
+	void fireError(String message, boolean serialReaderStopped) {
+		Object[] listeners = listenerList.getListenerList();
+		for (int i = 0; i < listeners.length; i = i+2) {
+			if (listeners[i] == ErrorListener.class) {
+				((ErrorListener) listeners[i+1]).onError(message, serialReaderStopped);
 			}
 		}
 	}
