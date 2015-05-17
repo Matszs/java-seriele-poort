@@ -17,8 +17,11 @@ import javafx.stage.Stage;
 
 
 import javafx.util.Duration;
+import wattGraphs.Database.Database;
 import wattGraphs.SerialPortControl.*;
 import wattGraphs.SerialPortControl.ErrorListener;
+
+import java.sql.SQLException;
 
 
 public class Main extends Application {
@@ -35,16 +38,34 @@ public class Main extends Application {
 	private static int timeCounter = 0;
 	private static Timeline timer = null;
 	private static TextField lastUsageField = null;
+	private static TextField averageField = null;
+	private static Database database;
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	public static void startMeasuring() {
+		final String dbHost = Configuration.getString("db_host");
+		if(dbHost != null){
+			String dbUsername = Configuration.getString("db_username");
+			String dbPassword = Configuration.getString("db_password");
+			String dbDatabase = Configuration.getString("db_database");
+
+			database = new Database(dbHost, dbUsername, dbPassword, dbDatabase);
+		}
+
 		portController = new SerialPortControl(Configuration.getString("port"));
 		portController.addDataReadListener(new DataReadListener() {
 			@Override
 			public void onReceivingWattage(final double watt) {
+				if(dbHost != null) {
+					try {
+						database.insert("INSERT INTO charts_data SET chart_id = 1, measurement = " + String.valueOf(watt).replace(',', '.'));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
 
 				// Run changes in UI thread
 				Platform.runLater(new Runnable() {
@@ -59,7 +80,8 @@ public class Main extends Application {
 
 						if(lastUsageField != null)
 							lastUsageField.setText(String.format("%.2f", watt) + " watt");
-						//averageText.setText("Gemiddelde gebruik:  " + String.format("%.2f", (totalUsage / (counter + 1))) + " watt");
+						if(averageField != null)
+							averageField.setText(String.format("%.2f", (totalUsage / (counter + 1))) + " watt");
 
 						counter++;
 					}
@@ -85,6 +107,8 @@ public class Main extends Application {
 
 				if(portController.isStarted())
 					portController.stop();
+				portController = null;
+
 				System.out.println("STOPPED BY ERROR: " + message);
 
 			}
@@ -98,6 +122,7 @@ public class Main extends Application {
 		Parent root = (Parent) fxmlLoader.load();
 
 		lastUsageField = (TextField)fxmlLoader.getNamespace().get("lastMeasuring");
+		averageField = (TextField)fxmlLoader.getNamespace().get("average");
 
 		Button captureButton = (Button)fxmlLoader.getNamespace().get("startButton");
 		captureButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -192,8 +217,6 @@ public class Main extends Application {
 		dbUsername.setText(Configuration.getString("db_username"));
 		dbPassword.setText(Configuration.getString("db_password"));
 		dbDatabase.setText(Configuration.getString("db_database"));
-
-
 
 		Scene scene = new Scene(root);
 		stage.setTitle("Energiegebruik");

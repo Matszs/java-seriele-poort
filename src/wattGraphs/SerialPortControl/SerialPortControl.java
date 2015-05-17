@@ -1,5 +1,10 @@
 package wattGraphs.SerialPortControl;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
 import jssc.*;
 
 import javax.swing.event.EventListenerList;
@@ -20,6 +25,8 @@ public class SerialPortControl implements Runnable {
 	int threadTimer = 0;
 	static MeasuringBoard measuringBoard;
 	boolean isStarted = false;
+	boolean debugging = true;
+	private Timeline debugTimer = null;
 
 	public SerialPortControl(String port) {
 		PORT = port;
@@ -76,6 +83,18 @@ public class SerialPortControl implements Runnable {
 			isStarted = false;
 			System.out.println("ERROR 2: " + e.getMessage());
 		}
+
+		if(debugging) {
+			debugTimer = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					int randomNum = 0 + (int)(Math.random() * ((80 - 0) + 1));
+					fireDataReadListener((double)randomNum);
+				}
+			}));
+			debugTimer.setCycleCount(1000);
+			debugTimer.play();
+		}
 	}
 
 	public void stop() {
@@ -86,6 +105,11 @@ public class SerialPortControl implements Runnable {
 			System.out.println("ERROR 3: " + e.getMessage());
 		} finally {
 			isStarted = false;
+		}
+
+		if(debugging && debugTimer != null) {
+			debugTimer.stop();
+			debugTimer = null;
 		}
 	}
 
