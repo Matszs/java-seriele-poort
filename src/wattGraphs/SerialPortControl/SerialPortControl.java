@@ -25,7 +25,7 @@ public class SerialPortControl implements Runnable {
 	int threadTimer = 0;
 	static MeasuringBoard measuringBoard;
 	boolean isStarted = false;
-	boolean debugging = true;
+	boolean debugging = false; // enable for false measuring data
 	private Timeline debugTimer = null;
 
 	public SerialPortControl(String port) {
