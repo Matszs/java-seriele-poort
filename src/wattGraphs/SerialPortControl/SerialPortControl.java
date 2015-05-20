@@ -27,6 +27,7 @@ public class SerialPortControl implements Runnable {
 	boolean isStarted = false;
 	boolean debugging = false; // enable for false measuring data
 	private Timeline debugTimer = null;
+	public int counter = 0;
 
 	public SerialPortControl(String port) {
 		PORT = port;
@@ -45,10 +46,14 @@ public class SerialPortControl implements Runnable {
 					try {
 						final byte buffer[] = serialPort.readBytes(event.getEventValue());
 
-						if (buffer.length == 840) {
+						if (buffer.length == 840 && counter == 0) {
 							measuringBoard.processData(buffer);
 							fireDataReadListener(measuringBoard.getWattage());
 						}
+
+						counter++;
+						if(counter == 10)
+							counter = 0;
 
 					} catch (SerialPortException ex) {
 						System.out.println("ERROR 1: " + ex);
