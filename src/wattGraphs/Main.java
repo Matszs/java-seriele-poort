@@ -47,7 +47,7 @@ public class Main extends Application {
 
 	public static void startMeasuring() {
 		final String dbHost = Configuration.getString("db_host");
-		if(dbHost != null){
+		if(dbHost != null && dbHost.length() != 0){
 			String dbUsername = Configuration.getString("db_username");
 			String dbPassword = Configuration.getString("db_password");
 			String dbDatabase = Configuration.getString("db_database");
@@ -59,7 +59,7 @@ public class Main extends Application {
 		portController.addDataReadListener(new DataReadListener() {
 			@Override
 			public void onReceivingWattage(final double watt) {
-				if(dbHost != null) {
+				if(dbHost != null && dbHost.length() != 0){
 					try {
 						database.insert("INSERT INTO charts_data SET chart_id = 1, measurement = " + String.valueOf(watt).replace(',', '.'));
 					} catch (SQLException e) {
