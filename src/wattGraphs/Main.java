@@ -191,6 +191,14 @@ public class Main extends Application {
 			}
 		});
 
+		Button resetButton = (Button)fxmlLoader.getNamespace().get("resetButton");
+		resetButton.setOnAction(new EventHandler<ActionEvent>() {
+		  @Override
+		  public void handle(ActionEvent actionEvent) {
+			  totalUsage = counter = 0;
+		  }
+		});
+
 		LineChart energyLineChart = (LineChart)fxmlLoader.getNamespace().get("EnergyLineChart");
 		energyLineChart.getData().add(series);
 

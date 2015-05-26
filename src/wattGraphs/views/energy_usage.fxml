@@ -46,6 +46,7 @@
                         <TextField id="lastMeasuring" fx:id="lastMeasuring" disable="true" layoutX="127.0" layoutY="449.0" prefHeight="26.0" prefWidth="117.0" text="0" />
                         <Label layoutX="267.0" layoutY="454.0" text="Gemiddelde:" />
                         <TextField fx:id="average" disable="true" editable="false" layoutX="349.0" layoutY="449.0" prefHeight="26.0" prefWidth="109.0" text="0" />
+                        <Button id="resetButton" fx:id="resetButton" layoutX="488.0" layoutY="449.0" mnemonicParsing="false" text="Reset gemiddelde" />
                      </children>
                   </AnchorPane>
             </content>
