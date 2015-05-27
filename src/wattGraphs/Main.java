@@ -39,6 +39,7 @@ public class Main extends Application {
 	private static Timeline timer = null;
 	private static TextField lastUsageField = null;
 	private static TextField averageField = null;
+	private static Button startButton = null;
 	private static Database database;
 
 	public static void main(String[] args) {
@@ -109,6 +110,9 @@ public class Main extends Application {
 					portController.stop();
 				portController = null;
 
+				if(startButton != null)
+					startButton.setText("Start");
+
 				System.out.println("STOPPED BY ERROR: " + message);
 
 			}
@@ -124,7 +128,7 @@ public class Main extends Application {
 		lastUsageField = (TextField)fxmlLoader.getNamespace().get("lastMeasuring");
 		averageField = (TextField)fxmlLoader.getNamespace().get("average");
 
-		Button captureButton = (Button)fxmlLoader.getNamespace().get("startButton");
+		Button captureButton = startButton = (Button)fxmlLoader.getNamespace().get("startButton");
 		captureButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
@@ -155,6 +159,9 @@ public class Main extends Application {
 								portController.stop();
 								System.out.println("STOP");
 
+								if(startButton != null)
+									startButton.setText("Start");
+
 							}
 
 							int minutes = (timeCounter / 60);
@@ -171,6 +178,8 @@ public class Main extends Application {
 
 					portController.start();
 					System.out.println("START");
+					if(startButton != null)
+						startButton.setText("Stop");
 
 				} else {
 					TextField timeMinutes = (TextField)fxmlLoader.getNamespace().get("timeMinutes");
@@ -187,6 +196,10 @@ public class Main extends Application {
 
 					portController.stop();
 					System.out.println("STOP");
+
+					if(startButton != null)
+						startButton.setText("Start");
+
 				}
 			}
 		});
@@ -195,7 +208,11 @@ public class Main extends Application {
 		resetButton.setOnAction(new EventHandler<ActionEvent>() {
 		  @Override
 		  public void handle(ActionEvent actionEvent) {
-			  totalUsage = counter = 0;
+
+			  totalUsage = 0;
+			  counter = 0;
+			  averageField.setText("RESET");
+
 		  }
 		});
 

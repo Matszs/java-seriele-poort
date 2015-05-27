@@ -72,6 +72,7 @@ public class MeasuringBoard {
 			channel.addMeasurement(average);
 
 			double watt = channel.getAverageWattage();
+			channel.resetMeasurements();
 			totalWattage += watt;
 		}
 

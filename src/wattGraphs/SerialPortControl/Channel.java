@@ -43,6 +43,10 @@ public class Channel {
 		return (totalWatt / measurements.size());
 	}
 
+	void resetMeasurements() {
+		measurements.clear();
+	}
+
 	void addMeasurement(double measurement) {
 		measurements.add(measurement);
 	}
