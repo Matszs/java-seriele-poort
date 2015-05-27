@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="comm" level="project" />
+    <orderEntry type="library" name="jssc (3)" level="project" />
   </component>
 </module>
+

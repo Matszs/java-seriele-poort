@@ -51,7 +51,7 @@ public class SerialPortControl implements Runnable {
 			if(serialPort.isOpened()) {
 				if(threadTimer == 0) {
 					serialPort.writeByte((byte)0x38);
-				} else if(threadTimer == 50) {
+				} else if(threadTimer == 5000) {
 					serialPort.writeByte((byte) 0x39);
 				}
 

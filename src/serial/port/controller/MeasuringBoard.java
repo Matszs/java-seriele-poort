@@ -32,10 +32,10 @@ public class MeasuringBoard {
 		null,
 		null,
 		new Channel("ATX12", 12, multiplier2),
-		new Channel("3.3V", 3.3, multiplier2),
-		new Channel("5V", 5, multiplier2),
-		new Channel("5Vsb", 5, multiplier2),
-		new Channel("12V", 12, multiplier2),
+		new Channel("3.3V", 3.3, multiplier1),
+		new Channel("5V", 5, multiplier1),
+		new Channel("5Vsb", 5, multiplier1),
+		new Channel("12V  ", 12, multiplier2),
 	};
 
 
@@ -59,7 +59,8 @@ public class MeasuringBoard {
 		for (int channelIndex = 3; channelIndex <= 7; channelIndex++) {
 			Channel channel = channels[channelIndex];
 
-			//System.out.print("Channel (" + channel.getName() + "): ");
+			/*if(channel.getName() == "ATX12" || channel.getName() == "12V  ")
+				System.out.print("Channel (" + channel.getName() + "): ");*/
 			double total = 0;
 			for (int i = 0; i < 50; i++) { // first 50 samples, each 8 16-bit words=50*8*2=800 bytes (400 16-bit words)
 				int bix = 2 * (i * 8 + channelIndex); // buffer byte index
@@ -73,8 +74,10 @@ public class MeasuringBoard {
 			//System.out.println((total / 50));
 
 			double watt = channel.getAverageWattage();
+			channel.resetMeasurements();
 
-			//System.out.println("Wattage: " + watt);
+			/*if(channel.getName() == "ATX12" || channel.getName() == "12V  ")
+				System.out.println("Wattage: " + watt);*/
 			totalWattage += watt;
 		}
 
