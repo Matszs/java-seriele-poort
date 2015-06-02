@@ -12,12 +12,14 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 
 import javafx.util.Duration;
 import wattGraphs.Database.Database;
+import wattGraphs.Logging.Log;
 import wattGraphs.SerialPortControl.*;
 import wattGraphs.SerialPortControl.ErrorListener;
 
@@ -30,7 +32,7 @@ public class Main extends Application {
 
 	private static SerialPortControl portController = null;
 
-	private static FXMLLoader fxmlLoader;
+	public static FXMLLoader fxmlLoader;
 	private static XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 	static int counter = 0;
 	static double totalUsage = 0; //Double.MAX_VALUE is the maximum a double (somewhere around 1.7*10^308).
@@ -40,30 +42,24 @@ public class Main extends Application {
 	private static TextField lastUsageField = null;
 	private static TextField averageField = null;
 	private static Button startButton = null;
-	private static Database database;
+	private static Database database = null;
+
+	private static String insertQuery = null;
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	public static void startMeasuring() {
-		final String dbHost = Configuration.getString("db_host");
-		if(dbHost != null && dbHost.length() != 0){
-			String dbUsername = Configuration.getString("db_username");
-			String dbPassword = Configuration.getString("db_password");
-			String dbDatabase = Configuration.getString("db_database");
-
-			database = new Database(dbHost, dbUsername, dbPassword, dbDatabase);
-		}
-
 		portController = new SerialPortControl(Configuration.getString("port"));
 		portController.addDataReadListener(new DataReadListener() {
 			@Override
 			public void onReceivingWattage(final double watt) {
-				if(dbHost != null && dbHost.length() != 0){
+				if(insertQuery != null && database != null){
 					try {
-						database.insert("INSERT INTO charts_data SET chart_id = 1, measurement = " + String.valueOf(watt).replace(',', '.'));
-					} catch (SQLException e) {
+						database.insert(insertQuery.replaceFirst("(\\[MEASUREMENT\\])", String.valueOf(watt).replace(',', '.')));
+					} catch (SQLException e) { // SQLException
+						Log.log(e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -72,7 +68,7 @@ public class Main extends Application {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						series.getData().add(new XYChart.Data(counter, (int) watt));
+						series.getData().add(new XYChart.Data(counter, watt));
 						totalUsage += watt;
 
 						if (series.getData().size() > MAX_DATA_POINTS) {
@@ -89,6 +85,7 @@ public class Main extends Application {
 				});
 			}
 		});
+
 		portController.addOnErrorListener(new ErrorListener() {
 			@Override
 			public void onError(String message, boolean serialReaderStopped) {
@@ -115,6 +112,8 @@ public class Main extends Application {
 
 				System.out.println("STOPPED BY ERROR: " + message);
 
+				Log.log("Error: " + message);
+
 			}
 		});
 		portController.init();
@@ -132,6 +131,19 @@ public class Main extends Application {
 		captureButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
+				insertQuery = Configuration.getString("insert-query");
+
+				final String dbHost = Configuration.getString("db_host");
+				if(dbHost != null && dbHost.length() != 0){
+					String dbUsername = Configuration.getString("db_username");
+					String dbPassword = Configuration.getString("db_password");
+					String dbDatabase = Configuration.getString("db_database");
+
+					database = new Database(dbHost, dbUsername, dbPassword, dbDatabase);
+					Log.log("Database connection setup");
+				} else
+					database = null;
+
 				if(portController == null)
 					startMeasuring();
 
@@ -178,6 +190,7 @@ public class Main extends Application {
 
 					portController.start();
 					System.out.println("START");
+					Log.log("Start");
 					if(startButton != null)
 						startButton.setText("Stop");
 
@@ -196,6 +209,7 @@ public class Main extends Application {
 
 					portController.stop();
 					System.out.println("STOP");
+					Log.log("Stop");
 
 					if(startButton != null)
 						startButton.setText("Start");
@@ -211,7 +225,9 @@ public class Main extends Application {
 
 			  totalUsage = 0;
 			  counter = 0;
-			  averageField.setText("RESET");
+			  averageField.setText("0.0");
+			  Log.log("Reset");
+			  series.getData().clear();
 
 		  }
 		});
@@ -224,6 +240,7 @@ public class Main extends Application {
 		final TextField dbUsername = (TextField)fxmlLoader.getNamespace().get("settingDbUser");
 		final TextField dbPassword = (TextField)fxmlLoader.getNamespace().get("settingDbPassword");
 		final TextField dbDatabase = (TextField)fxmlLoader.getNamespace().get("settingDbDatabase");
+		final TextArea insertQuery = (TextArea)fxmlLoader.getNamespace().get("insertQuery");
 
 		Button saveSettingsButton = (Button)fxmlLoader.getNamespace().get("settingSave");
 		saveSettingsButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -234,6 +251,7 @@ public class Main extends Application {
 				Configuration.write("db_username", dbUsername.getText());
 				Configuration.write("db_password", dbPassword.getText());
 				Configuration.write("db_database", dbDatabase.getText());
+				Configuration.write("insert-query", insertQuery.getText());
 			}
 		});
 
@@ -242,6 +260,7 @@ public class Main extends Application {
 		dbUsername.setText(Configuration.getString("db_username"));
 		dbPassword.setText(Configuration.getString("db_password"));
 		dbDatabase.setText(Configuration.getString("db_database"));
+		insertQuery.setText(Configuration.getString("insert-query"));
 
 		Scene scene = new Scene(root);
 		stage.setTitle("Energiegebruik");

@@ -1,5 +1,7 @@
 package wattGraphs.Database;
 
+import wattGraphs.Logging.Log;
+
 import java.sql.*;
 
 /**
@@ -17,6 +19,7 @@ public class Database {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?user=" + username + "&password=" + password);
 		} catch (Exception e) {
+			Log.log("Database connection error: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

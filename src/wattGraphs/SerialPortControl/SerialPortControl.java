@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import jssc.*;
+import wattGraphs.Logging.Log;
 
 import javax.swing.event.EventListenerList;
 
@@ -57,6 +58,7 @@ public class SerialPortControl implements Runnable {
 
 					} catch (SerialPortException ex) {
 						System.out.println("ERROR 1: " + ex);
+						Log.log("Error: " + ex.getMessage());
 					}
 				}
 			});
@@ -87,14 +89,15 @@ public class SerialPortControl implements Runnable {
 		} catch(Exception e) {
 			isStarted = false;
 			System.out.println("ERROR 2: " + e.getMessage());
+			Log.log("Error: " + e.getMessage());
 		}
 
 		if(debugging) {
 			debugTimer = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
-					int randomNum = 0 + (int)(Math.random() * ((80 - 0) + 1));
-					fireDataReadListener((double)randomNum);
+					double randomNum = 0 + (double)(Math.random() * ((80 - 0) + 1));
+					fireDataReadListener(randomNum);
 				}
 			}));
 			debugTimer.setCycleCount(1000);
@@ -108,6 +111,7 @@ public class SerialPortControl implements Runnable {
 				serialPort.writeByte((byte) 0x39); // send bytes to measuringboard to start the read process
 		} catch(Exception e) {
 			System.out.println("ERROR 3: " + e.getMessage());
+			Log.log("Error: " + e.getMessage());
 		} finally {
 			isStarted = false;
 		}

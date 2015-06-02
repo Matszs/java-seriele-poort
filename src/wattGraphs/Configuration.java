@@ -19,7 +19,7 @@ public class Configuration {
 			Scanner in = new Scanner(new FileReader(file));
 
 			while (in.hasNext()) {
-				String rule = in.next();
+				String rule = in.nextLine();
 				if(rule.length() == 0)
 					continue;
 
@@ -43,7 +43,7 @@ public class Configuration {
 			String settings = "";
 
 			while (in.hasNext()) {
-				String rule = in.next();
+				String rule = in.nextLine();
 				if(rule.length() == 0)
 					continue;
 

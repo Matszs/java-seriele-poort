@@ -37,7 +37,7 @@
                                   <NumberAxis forceZeroInRange="false" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis forceZeroInRange="false" label="Watt" minorTickCount="10" side="LEFT" upperBound="80.0" />
+                                  <NumberAxis forceZeroInRange="false" label="Watt" minorTickCount="10" side="LEFT" tickUnit="0.1" upperBound="80.0" />
                                 </yAxis>
                               </LineChart>
                            </children>
@@ -68,10 +68,18 @@
                         <Label layoutX="16.0" layoutY="229.0" text="Database:" />
                         <TextField fx:id="settingDbDatabase" layoutX="134.0" layoutY="224.0" />
                         <Button fx:id="settingSave" layoutX="134.0" layoutY="400.0" mnemonicParsing="false" text="Opslaan" />
+                        <Label layoutX="373.0" layoutY="89.0" text="Insert-query:" />
+                        <TextArea id="insertQuery" fx:id="insertQuery" layoutX="373.0" layoutY="113.0" prefHeight="283.0" prefWidth="301.0" />
+                        <Label layoutX="349.0" layoutY="405.0" text="(Vervang meetwaarde door variable [MEASUREMENT])" />
+                        <Label layoutX="353.0" layoutY="426.0" text="Gebruik geen enters!" />
                      </children>
                   </AnchorPane>
             </content>
           </Tab>
+		  <Tab text="Log">
+               <content>
+                  <TextArea id="logField" fx:id="logField" prefHeight="200.0" prefWidth="200.0" />
+               </content></Tab>
         </tabs>
       </TabPane>
    </children>
