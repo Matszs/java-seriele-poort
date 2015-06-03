@@ -25,7 +25,10 @@ public class Database {
 	}
 
 	public int insert(String sql) throws SQLException{
-		PreparedStatement pst =  connection.prepareStatement(sql);
-		return pst.executeUpdate(sql);
+		if(connection != null) {
+			PreparedStatement pst = connection.prepareStatement(sql);
+			return pst.executeUpdate(sql);
+		}
+		return 0;
 	}
 }

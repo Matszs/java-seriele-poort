@@ -87,6 +87,20 @@ public class MeasuringBoard {
 		Method for converting bytes to 'words' from Jan Derriks
 	 */
 	private int bytesToWord(byte[] buffer, int bix) {
+		/*
+			1110 0101
+
+			| = or operation
+
+			1110 << 8 = 1110 0000
+
+
+			1110 0000
+				 0101
+			---------- OR
+			1110 0101
+		 */
+
 		return (((buffer[bix]) << 8) | buffer[bix + 1] & 0xFF) & 0xffff; // bigendian ABCD= AB CD
 		//return (((buffer[bix + 1]) << 8) | buffer[bix] & 0xFF) & 0xffff;
 	}

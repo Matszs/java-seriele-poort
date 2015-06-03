@@ -57,7 +57,8 @@ public class Main extends Application {
 			public void onReceivingWattage(final double watt) {
 				if(insertQuery != null && database != null){
 					try {
-						database.insert(insertQuery.replaceFirst("(\\[MEASUREMENT\\])", String.valueOf(watt).replace(',', '.')));
+						if(database.insert(insertQuery.replaceFirst("(\\[MEASUREMENT\\])", String.valueOf(watt).replace(',', '.'))) == 0)
+							Log.log("Error on insert");
 					} catch (SQLException e) { // SQLException
 						Log.log(e.getMessage());
 						e.printStackTrace();

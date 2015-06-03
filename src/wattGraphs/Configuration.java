@@ -1,5 +1,7 @@
 package wattGraphs;
 
+import wattGraphs.Logging.Log;
+
 import java.io.*;
 import java.util.Scanner;
 
@@ -28,6 +30,7 @@ public class Configuration {
 					return keyValue[1];
 			}
 		} catch(Exception e) {
+			Log.log(e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -64,6 +67,7 @@ public class Configuration {
 			output.close();
 
 		} catch(Exception e) {
+			Log.log(e.getMessage());
 			e.printStackTrace();
 		}
 	}
